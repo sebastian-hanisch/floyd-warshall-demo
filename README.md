@@ -1,5 +1,7 @@
 # Floyd-Warshall – alle Paare mit drei Schleifen – Streamlit-Demo
 
+**[→ Demo live ausprobieren](https://sebastianhanisch-floyd-warshall-demo.streamlit.app/)**
+
 Sechstes Stück der **Kürzeste-Wege-Linie** der "Konzepte"-Reihe für die Website "Sebastian Hanisch – Operations Research und Machine Learning", Fortsetzung der [Bellman-Ford-Demo](../bellman-ford-demo):
 anders als die Fall-Demos im Portfolio (ein Anwendungsfall, mehrere Verfahren im Vergleich) zeigt diese Demo **ein** Verfahren – **Floyd-Warshall** – an einem wachsenden Beispiel.
 Bellman-Ford beantwortet die Entfernungen von **einem** Start. Floyd-Warshall lässt die Knoten nacheinander als **Zwischenknoten** zu: nach Schritt *k* ist jede Entfernung die beste Route, die nur über die Knoten 0 bis *k − 1* läuft.
