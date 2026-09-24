@@ -23,6 +23,7 @@ from fw_presets import (
     init_session_state_defaults,
     load_permalink_settings,
     randomize_seed,
+    seed_widget,
     sync_query_params,
 )
 from fw_scenario import make_network
@@ -134,7 +135,7 @@ init_session_state_defaults()
 
 # Knotenzahl des gewählten Netzes: die Python-Schleifen (n³ Schritte) gibt es nur für kleine Netze
 _net_now = st.session_state["net_select"]
-_n_now = {"small": 6, "small_cycle": 6}.get(_net_now, int(st.session_state.get("nodes_slider", C.DEFAULT_NODES)) if _net_now == "random" else int(st.session_state.get("side_slider", C.DEFAULT_SIDE)) ** 2)
+_n_now = {"small": 6, "small_cycle": 6}.get(_net_now, int(st.session_state.get("nodes_slider", st.session_state.get(KEPT["nodes_slider"], C.DEFAULT_NODES))) if _net_now == "random" else int(st.session_state.get("side_slider", st.session_state.get(KEPT["side_slider"], C.DEFAULT_SIDE))) ** 2)
 variant_options = [v for v in C.VARIANT_LABELS if v == "numpy" or _n_now <= C.PYTHON_VARIANT_MAX_NODES]
 if st.session_state["variant_select"] not in variant_options:
     st.session_state["variant_select"] = C.DEFAULT_VARIANT
@@ -147,34 +148,42 @@ with st.sidebar:
              "höchstens 400 Knoten, weil die Matrix n² Zellen hat.",
     )
     if net_key in C.SIZED_NETS:
+        seed_widget("side_slider")
         side = st.slider("Kreuzungen je Seite", *bounds("side_slider"), key="side_slider",
                          help="Größe des Rasters: n = Seite² Knoten. Floyd-Warshall braucht n³ Vergleiche: bei 8 / 14 / 20 Kreuzungen je Seite 262 144 / 7 529 536 / 64 000 000.")
         st.session_state[KEPT["side_slider"]] = side
     else:
         side = int(st.session_state.get(KEPT["side_slider"], C.DEFAULT_SIDE))
     if net_key == "ev":
+        seed_widget("hill_slider")
         hill = st.slider("Hügel [m Höhenunterschied]", *bounds("hill_slider"), key="hill_slider", help="Höhenunterschied zwischen Tal und Spitze: je höher, desto mehr negative Kanten (bei 0 m gibt es keine).")
         st.session_state[KEPT["hill_slider"]] = hill
+        seed_widget("eta_slider")
         eta = st.slider("Rückgewinnung bergab [%]", *bounds("eta_slider"), key="eta_slider", help="Wie viel Lageenergie der Wagen beim Bergabfahren zurückgewinnt. Unter 100 % entsteht nie ein negativer Zyklus.")
         st.session_state[KEPT["eta_slider"]] = eta
     else:
         hill = int(st.session_state.get(KEPT["hill_slider"], C.DEFAULT_HILL))
         eta = int(st.session_state.get(KEPT["eta_slider"], C.DEFAULT_ETA))
     if net_key == "city":
+        seed_widget("reach_slider")
         reach = st.slider("Reichweite der Straßen [Blocklängen]", *bounds("reach_slider"), key="reach_slider", step=0.1, help="Wie weit eine Straße zwischen zwei Kreuzungen reichen darf (1 = nur Nachbarn im Raster).")
         st.session_state[KEPT["reach_slider"]] = reach
+        seed_widget("spread_slider")
         spread = st.slider("Streuung der Kosten", *bounds("spread_slider"), key="spread_slider", step=0.25, help="Kosten einer Straße = Länge × (1 + Streuung × Zufall), gerundet auf ganze Meter.")
         st.session_state[KEPT["spread_slider"]] = spread
     else:
         reach = float(st.session_state.get(KEPT["reach_slider"], C.DEFAULT_REACH))
         spread = float(st.session_state.get(KEPT["spread_slider"], C.DEFAULT_SPREAD))
     if net_key == "random":
+        seed_widget("nodes_slider")
         nodes = st.slider("Knoten", *bounds("nodes_slider"), key="nodes_slider", step=10,
                           help="Anzahl der Knoten n. Vergleiche n³ bei 100 / 200 / 400 Knoten: 1 000 000 / 8 000 000 / 64 000 000.")
         st.session_state[KEPT["nodes_slider"]] = nodes
+        seed_widget("degree_slider")
         degree = st.slider("Mittlerer Grad", *bounds("degree_slider"), key="degree_slider", step=0.5,
                            help="Kanten je Knoten (ausgehend). Anteil der Vergleiche, die die Variante \"überspringt\" braucht (200 Knoten), bei Grad 2 / 3 / 6 / 12: 20 % / 34 % / 60 % / 80 % von n³ - je dichter, desto weniger Unerreichbares gibt es zu überspringen.")
         st.session_state[KEPT["degree_slider"]] = degree
+        seed_widget("pot_slider")
         pot = st.slider("Potenzialspanne", *bounds("pot_slider"), key="pot_slider",
                         help="Kosten = 1 bis 9 plus Potenzial(Start) − Potenzial(Ziel): je größer die Spanne, desto mehr negative Kanten - nie ein negativer Zyklus. 0 = keine negativen Kanten.")
         st.session_state[KEPT["pot_slider"]] = pot
@@ -186,12 +195,14 @@ with st.sidebar:
                            help="Alle Varianten liefern dieselbe Matrix und dieselbe Nachfolger-Matrix. Matrixoperation: je k eine Operation auf Spalte und Zeile (schnell, für alle Größen). Dreifache Schleife: der Lehrbuch-Code in reinem Python, "
                                 f"nur bis {C.PYTHON_VARIANT_MAX_NODES} Knoten. \"Überspringt\": lässt Paare aus, deren Routen über k noch nicht existieren - spart Vergleiche, nicht Ergebnis.")
     if net_key not in C.SMALL_NETS:
+        seed_widget("distance_slider")
         distance = st.slider("Entfernung Start–Ziel [%]", *bounds("distance_slider"), key="distance_slider",
                              help="Welches Paar die Routen-Ansicht zeigt: das Ziel ist der Knoten, dessen Entfernung vom Start in der Rangfolge aller erreichbaren Knoten bei diesem Prozentwert liegt (100 = der am weitesten entfernte). Die Matrix enthält alle Paare.")
         st.session_state[KEPT["distance_slider"]] = distance
     else:
         distance = int(st.session_state.get(KEPT["distance_slider"], C.DEFAULT_DISTANCE))
     if net_key in ("city", "ev", "random"):
+        seed_widget("seed_input")
         seed = st.number_input("Zufalls-Seed", *bounds("seed_input"), key="seed_input", step=1)
         st.session_state[KEPT["seed_input"]] = seed
         st.button("🎲 Neues Netz generieren", width="stretch", on_click=randomize_seed, help="Würfelt einen neuen Zufalls-Seed für das Netz.")
