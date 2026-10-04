@@ -112,10 +112,10 @@ with st.expander("So funktioniert Floyd-Warshall", expanded=True):
     st.markdown(
         """
 1. **Start:** die Matrix $D$ enthält 0 auf der Diagonale, die Kantenkosten für vorhandene Kanten und $\\infty$ sonst.
-2. **Zwischenknoten zulassen:** für $k = 0, 1, \\dots, n-1$: für jedes Paar $(i,j)$ prüfen, ob der Umweg über $k$ billiger ist: $D_{ij} \\leftarrow \\min(D_{ij},\\; D_{ik} + D_{kj})$. Nach Schritt $k$ sind alle Routen berücksichtigt, die nur über die Knoten $0,\\dots,k$ führen.
+2. **Zwischenknoten zulassen:** für $k = 0, 1, \\dots, n-1$: für jedes Paar $(i,j)$ prüfen, ob der Umweg über $k$ billiger ist: $D_{ij} \\leftarrow \\min(D_{ij},\\; D_{ik} + D_{kj})$. Nach dem Durchgang für $k$ sind alle Routen berücksichtigt, die nur über die Knoten $0,\\dots,k$ führen.
 3. **Nachfolger merken:** wird $D_{ij}$ verbessert, merkt man sich, dass der erste Schritt von $i$ nach $j$ jetzt derselbe ist wie von $i$ nach $k$. So lässt sich jede Route später in ihrer Länge auspacken.
 4. **Reihenfolge der Schleifen:** $k$ muss die **äußerste** Schleife sein - sonst fehlen Zwischenknoten, wenn sie gebraucht werden (das zeigt ein Experiment unten).
-5. **Negativer Zyklus:** wird ein Wert der Diagonale negativ, liegt der Knoten auf einem negativen Zyklus. Für Paare, deren Routen über so einen Knoten führen können, gibt es keine kürzeste Route.
+5. **Negativer Zyklus:** wird ein Wert der Diagonale negativ, liegt der Knoten auf einem negativen Zyklus oder auf einem Weg, der zu einem solchen hin- und wieder zurückführt. Umgekehrt wird jeder Knoten auf einem negativen Zyklus negativ, Knoten in dessen Umgebung können aber bei 0 oder darüber bleiben. Für Paare, deren Routen über so einen Knoten führen können, gibt es keine kürzeste Route.
         """
     )
 
@@ -415,7 +415,7 @@ st.markdown(
 | **Nur eine Kostenart** | Zeit gegen Energie gleichzeitig ist ein anderes Problem. | **Mehrkriterien-Routing** |
 """
 )
-st.caption("Die Nachbarn der Kürzeste-Wege-Linie: Johnson und Mehrkriterien-Routing (noch nicht gebaut). Bereits gebaut: Breitensuche, Dijkstra, bidirektionale Suche, Contraction Hierarchies und Bellman-Ford.")
+st.caption("Die Nachbarn der Kürzeste-Wege-Linie: Johnson und Mehrkriterien-Routing (beide gebaut). Ebenfalls gebaut: Breitensuche, Dijkstra, bidirektionale Suche, Contraction Hierarchies und Bellman-Ford.")
 
 st.markdown("---")
 
@@ -433,7 +433,7 @@ Der Schritt darf **in place** erfolgen: Zeile $k$ und Spalte $k$ ändern sich in
 
 **Nachfolger.** Wird $d(i,j)$ über $k$ verbessert, setzt man $\mathrm{nxt}(i,j)\leftarrow \mathrm{nxt}(i,k)$. Die Route $i \leadsto j$ ist dann $i, \mathrm{nxt}(i,j), \mathrm{nxt}(\mathrm{nxt}(i,j),j),\dots$ in $O(\text{Länge})$.
 
-**Negative Zyklen.** Liegt $i$ auf einem negativen Zyklus, wird $d(i,i)<0$ (Verfolgt man den Zyklus, sinkt $d(i,i)$ unter 0). Umgekehrt zeigt ein negativer Diagonalwert einen negativen Zyklus durch $i$. Für $(i,j)$ gibt es **keine kürzeste Route**, wenn ein Knoten $k$ mit $d(k,k)<0$ von $i$ aus erreichbar ist und $j$ von $k$ aus.
+**Negative Zyklen.** Liegt $i$ auf einem negativen Zyklus, wird $d(i,i)<0$ (Verfolgt man den Zyklus, sinkt $d(i,i)$ unter 0). Umgekehrt zeigt ein negativer Diagonalwert eine Rundreise $i \leadsto i$ mit negativen Kosten, also einen negativen Zyklus, der von $i$ aus erreichbar ist und wieder zu $i$ zurückführt (nicht unbedingt durch $i$ selbst). Jeder Knoten **auf** einem negativen Zyklus bekommt eine negative Diagonale; Knoten in dessen Umgebung können dagegen eine Diagonale $\geq 0$ behalten, obwohl sich eine Rundreise durch sie beliebig verbilligen ließe. Für $(i,j)$ gibt es **keine kürzeste Route**, wenn ein Knoten $k$ mit $d(k,k)<0$ von $i$ aus erreichbar ist und $j$ von $k$ aus.
 Die Erreichbarkeit (endlich oder $\infty$) stimmt auch dann. Die Werte selbst wachsen bei vielen negativen Zyklen exponentiell, weil jede Verbesserung Summen bereits verkleinerter Werte bildet.
 
 **Aufwand.** $\Theta(n^3)$ Vergleiche für jedes Netz, $\Theta(n^2)$ Speicher. n-mal Dijkstra mit Fibonacci-Heap: $O(n\,m + n^2\log n)$; n-mal Bellman-Ford: $O(n^2 m)$ im Lehrbuch. Erst für $m = \Theta(n^2)$ (dichte Netze) sind $n^3$ und $n \cdot m$ von gleicher Größenordnung.
@@ -449,6 +449,6 @@ st.markdown("---")
 
 st.caption(
     "Diese Demo ist Teil des Portfolios von [Sebastian Hanisch](https://sebastianhanisch.net) – "
-    "Operations Research und Machine Learning. Interesse an einer maßgeschneiderten Lösung für "
-    "Ihr Unternehmen? [Kontakt aufnehmen](https://sebastianhanisch.net/kontakt.html)"
+    "Operations Research und Machine Learning ([Über mich](https://sebastianhanisch.net/ueber-mich.html)). "
+    "Mehr zur Reihe: [Kürzeste Wege: von der Breitensuche bis RAPTOR](https://sebastianhanisch.net/konzepte-kuerzeste-wege.html)."
 )
