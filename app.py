@@ -408,7 +408,7 @@ st.markdown(
     """
 | Annahme | Was passiert, wenn sie verletzt ist | Wer setzt an |
 |---|---|---|
-| **n³ ist tragbar** | Floyd-Warshall braucht immer n³ Vergleiche: bei 400 Knoten und Grad 3 das 133-Fache der Kantenprüfungen von n-mal Dijkstra und gut das 16-Fache von n-mal Bellman-Ford. Dünne Netze bestrafen es am meisten. | **Johnson**: einmal Bellman-Ford, dann n-mal Dijkstra |
+| **n³ ist hinnehmbar** | Floyd-Warshall braucht immer n³ Vergleiche: bei 400 Knoten und Grad 3 das 133-Fache der Kantenprüfungen von n-mal Dijkstra und gut das 16-Fache von n-mal Bellman-Ford. Dünne Netze bestrafen es am meisten. | **Johnson**: einmal Bellman-Ford, dann n-mal Dijkstra |
 | **n² Speicher sind da** | Die Matrix hat n² Zellen: bei 400 Knoten 160 000 (1.3 MB als float64), bei 10 000 Knoten schon 100 Millionen (800 MB) - dazu die Nachfolger-Matrix. | Verfahren, die nur die gebrauchten Paare berechnen |
 | **Es gibt keinen negativen Zyklus** | Die Diagonale wird negativ, und die Werte wachsen exponentiell (Median des kleinsten Werts bei 10 / 80 / 400 Knoten: −28 / −1.6 · 10¹⁰ / −3.6 · 10⁵⁰). Für viele Paare gibt es keine kürzeste Route. | (das Problem hat keine Lösung) |
 | **Alle Paare werden gebraucht** | Für nur *k* Startknoten reichen *k* Läufe von Dijkstra: *k* · *m* Kantenprüfungen statt n³. | n-mal Dijkstra, **Johnson** |
